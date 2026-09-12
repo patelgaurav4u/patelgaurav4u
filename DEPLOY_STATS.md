@@ -79,12 +79,57 @@ https://github-readme-stats.vercel.app  ->  https://your-project.vercel.app
 
 Both the `/api?...` (stats) and `/api/top-langs/?...` (languages) URLs need it.
 
+## Troubleshooting
+
+Fetch the `vercel.app` URL directly with `curl` rather than judging from the README —
+GitHub's Camo proxy caches card images and will keep serving a stale error:
+
+```sh
+curl -s "https://github-readme-stats-gaurav-six.vercel.app/api?username=patelgaurav4u" \
+  | grep -o "Something went wrong\|[A-Z][a-z].*token[^<]*\|Total Stars"
+```
+
+The card prints the real cause on its **second line**. The two that matter:
+
+### "No GitHub API tokens found"
+
+No `PAT_1` env var reached the running deployment. Either it was never set, or it was
+added after the last build — Vercel only picks up env vars at deploy time, so
+**redeploy** after adding or changing one.
+
+### "Resource not accessible by personal access token"
+
+The token is being read, but lacks a permission the card needs. Typical symptom: the
+**top-langs card works while the stats card fails**, because top-langs only lists
+public repos, whereas the stats card also aggregates commits/PRs/issues over GraphQL.
+
+Confirm it is the token and not your account by requesting any other username — if
+that fails too, the token is the problem:
+
+```sh
+curl -s "https://github-readme-stats-gaurav-six.vercel.app/api?username=anuraghazra" \
+  | grep -o "Resource not accessible[^<]*\|Total Stars"
+```
+
+Two fixes, in order of preference:
+
+1. **Use a classic token with no scopes ticked** (<https://github.com/settings/tokens/new>).
+   github-readme-stats is built around classic tokens and its GraphQL queries work
+   reliably with them. An unscoped classic token reads only public data, so this stays
+   least-privilege. Replace `PAT_1` in Vercel, then redeploy.
+2. **Keep the fine-grained token** and add read access to your profile/user data under
+   **Account permissions** (not the repository block). Fine-grained tokens have known
+   friction with this project's account-level GraphQL calls.
+
 ## Notes
 
 - `count_private=true` only counts private repositories when the *deploying* account's
-  token has access to them — i.e. it works on your own instance, not on the shared one.
-  It is currently left in the README URLs but is a no-op with a public-only token, which
-  is the recommended setup. It is safe to delete the parameter entirely.
+  token has access to them. It has been removed from the README URLs, since it is a
+  no-op with the recommended public-only token.
+- Never paste the token into a chat, an issue, a commit, or a build log. It only ever
+  needs to travel from GitHub to your Vercel project's environment variables. If it is
+  exposed anywhere else, revoke it at <https://github.com/settings/tokens> and issue a
+  new one — revoking is instant and free.
 - `cache_seconds=86400` in the URLs asks for a longer cache, which reduces API calls
   and makes rate-limiting far less likely.
 - The streak card (`streak-stats.demolab.com`) is a **different** project
