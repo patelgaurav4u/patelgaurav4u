@@ -55,19 +55,19 @@
 ## 📊 GitHub Stats
 <!--
   These two cards are served by github-readme-stats. The shared public instance
-  (github-readme-stats.vercel.app) is frequently rate-limited and returns
+  (github-readme-stats-gaurav-six.vercel.app) is frequently rate-limited and returns
   "Something went wrong! ... No GitHub API tokens found".
   Fix: deploy your own instance (see DEPLOY_STATS.md) and replace the host below
   with your own, e.g. https://patelgaurav4u-stats.vercel.app
 -->
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=patelgaurav4u&show_icons=true&theme=radical&count_private=true&cache_seconds=86400" height="170"/>
+  <img src="https://github-readme-stats-gaurav-six.vercel.app/api?username=patelgaurav4u&show_icons=true&theme=radical&count_private=true&cache_seconds=86400" height="170"/>
   <img src="https://streak-stats.demolab.com/?user=patelgaurav4u&theme=radical" height="170"/>
 </p>
 
 ## 🧠 Most Used Languages
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=patelgaurav4u&layout=compact&theme=radical&count_private=true&langs_count=8&cache_seconds=86400"/>
+  <img src="https://github-readme-stats-gaurav-six.vercel.app/api/top-langs/?username=patelgaurav4u&layout=compact&theme=radical&count_private=true&langs_count=8&cache_seconds=86400"/>
 </p>
 
 ---
