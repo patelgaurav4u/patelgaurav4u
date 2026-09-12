@@ -25,14 +25,36 @@ your own GitHub token, which gets you a private 5,000 req/hr quota.
 
 - Go to <https://github.com/settings/tokens?type=beta>
 - **Generate new token** → fine-grained
-- Expiration: set a long window, or "No expiration"
-- Repository access: **Public repositories (read-only)** is enough for public stats.
-  To have private repos counted, choose **All repositories** instead.
+- Expiration: prefer a fixed window (90 days / 1 year) over "No expiration", so a
+  leaked token eventually dies on its own. You will need to rotate it in Vercel.
+- Repository access: **Public repositories (read-only)** — see the scope note below.
 - Permissions: no extra scopes are required for public-only stats.
 - Copy the token (starts with `github_pat_`). You cannot view it again later.
 
-> A classic token also works — create one with **no scopes ticked** for public data,
-> or the `repo` scope if you want private repos counted.
+> A classic token also works — create one with **no scopes ticked** for public data.
+> Avoid the `repo` scope: it is coarse and grants full read/write to every private
+> repository you can reach, which is far more than a stats card needs.
+
+#### Choosing the repository scope
+
+This token is stored as an environment variable in your Vercel project, and that
+project runs a fork of third-party code. Anyone who can reach the Vercel project can
+read the token. So scope it to the least thing that does the job.
+
+| Scope | Cards work? | If the token leaks |
+|---|---|---|
+| **Public repositories (read-only)** — recommended | Yes | Grants nothing beyond what any visitor to your profile can already see |
+| Only select repositories (a few of your own private repos) | Yes, plus those repos' commits | Exposes only the repos you hand-picked |
+| All repositories | Yes, plus all private commits | Exposes **every private repo your account can read**, including employer/org repos |
+
+**Recommendation: use Public repositories (read-only) and drop `count_private=true`
+from the README URLs.** The only thing private access buys you is a larger number on
+a decorative card; the cost is a credential that can read your private source code.
+
+If the private commit count genuinely matters, use **Only select repositories** and
+pick a handful of your *own* personal repos. Never include repositories owned by an
+employer or a client — granting a third-party deployment read access to those is
+likely a violation of your access agreement, regardless of intent.
 
 ### 2. Deploy to Vercel
 
@@ -61,6 +83,8 @@ Both the `/api?...` (stats) and `/api/top-langs/?...` (languages) URLs need it.
 
 - `count_private=true` only counts private repositories when the *deploying* account's
   token has access to them — i.e. it works on your own instance, not on the shared one.
+  It is currently left in the README URLs but is a no-op with a public-only token, which
+  is the recommended setup. It is safe to delete the parameter entirely.
 - `cache_seconds=86400` in the URLs asks for a longer cache, which reduces API calls
   and makes rate-limiting far less likely.
 - The streak card (`streak-stats.demolab.com`) is a **different** project
